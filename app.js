@@ -93,6 +93,9 @@ function renderTasks() {
         span.textContent = task.text;
         if (task.done) span.classList.add("done");
 
+        // Dubultklikšķis sāk rediģēšanu
+        span.addEventListener("dblclick", () => editTask(task.id, span));
+
         deleteBtn.textContent = "Dzēst";
         deleteBtn.className = "delete-btn";
         deleteBtn.addEventListener("click", () => deleteTask(task.id));
@@ -103,6 +106,31 @@ function renderTasks() {
 
     updateCounter();
     updateFilters();
+}
+
+// Sāk uzdevuma rediģēšanu
+function editTask(id, span) {
+    const oldText = span.textContent;
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = oldText;
+    span.replaceWith(input);
+    input.focus();
+    input.select();
+    saveEdit(id, input, oldText);
+}
+
+// Saglabā vai atceļ rediģēšanu
+function saveEdit(id, input, oldText) {
+    input.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+            const task = tasks.find(item => item.id === id);
+            if (task) task.text = input.value.trim() || oldText;
+            saveTasks();
+            renderTasks();
+        }
+        if (event.key === "Escape") renderTasks();
+    });
 }
 
 // Atjauno atlikušo uzdevumu skaitu
